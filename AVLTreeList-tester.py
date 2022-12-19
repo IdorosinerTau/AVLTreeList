@@ -1,6 +1,7 @@
 from avl_template_new import AVLTreeList
 import unittest
-
+import random
+import math
 
 """
 IN ORDER TO USE THE TEST TOU NEED TO DO THE FOLLOWING:
@@ -1408,6 +1409,57 @@ class testAVLList(unittest.TestCase):
         self.assertEqual(T.insert(0, 1), 0)
         self.assertEqual(T.insert(1, 2), 2)
 
+
+def tester():
+    for i in range(100):
+        avl1 = AVLTreeList()
+        p = random.randint(0, 100)
+        for i in range(0, p):
+            avl1.insert(i, i)
+
+        for i in range(0, math.floor(p / 2)):
+            d = random.randint(0, avl1.getRoot().getHeight() - 1)
+
+            pp = avl1.delete(d)
+            if (pp == -1):
+                print("l")
+        if (p - math.floor(p / 2)) != len(avl1.listToArray()):
+            print("no")
+
+        avl2 = AVLTreeList()
+        p = random.randint(0, 100)
+        for i in range(0, p):
+            avl2.insert(0, i + 100)
+
+        for i in range(0, math.floor(p / 2)):
+            d = random.randint(0, avl2.getRoot().getHeight() - 1)
+            if (avl2.delete(d) == -1):
+                print("l")
+
+        l1 = avl1.listToArray()
+        l2 = avl2.listToArray()
+        if (avl1.isAvlTree() == False):
+            print("l")
+        if (avl2.isAvlTree() == False):
+            print("l")
+
+        avl1.concat(avl2)
+
+        if (avl1.isAvlTree() == False):
+            print("l")
+        if avl1.listToArray()[0] != avl1.first():
+            print(list)
+        if avl1.listToArray().pop() != avl1.last():
+            print("l")
+        if avl1.listToArray() != (l1 + l2):
+            print(l1)
+            print(l2)
+            print(avl1.listToArray())
+
+
+
+
+
     # def test_successor_and_predeccessor(self):
     #     T = AVLTreeList()
     #     T.append(0)
@@ -1421,4 +1473,5 @@ class testAVLList(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    tester()
+    #unittest.main()
