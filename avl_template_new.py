@@ -564,7 +564,7 @@ class AVLTreeList(object):
 		new_tree.getRoot().setParent(AVLNode(None))
 		return new_tree
 
-	"""concatenates lst to self
+	"""concatenates lst to self - O(log(max{n,m})) where n is height(self) and m is height(lst)
 
 	@type lst: AVLTreeList
 	@param lst: a list to be concatenated after self
@@ -627,7 +627,7 @@ class AVLTreeList(object):
 		self.setMax(lst.getMax())
 		return height_diff
 
-	"""connects lst to self if height of self is bigger than height of lst
+	"""connects lst to self if height of self is bigger than height of lst - O(log(n)) where n is height(self)
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
@@ -655,7 +655,7 @@ class AVLTreeList(object):
 		lst.getRoot().setParent(x)
 		node_self.setParent(x)
 
-	"""connects lst to self if height of self is smaller than height of lst
+	"""connects lst to self if height of self is smaller than height of lst - O(log(m)) where m is height(lst)
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
@@ -686,7 +686,7 @@ class AVLTreeList(object):
 		#self is a subtree of lst and therefore the new root is the root of lst
 		self.setRoot(lst.getRoot())
 
-	"""connects lst to self if self and lst have the same height
+	"""connects lst to self if self and lst have the same height - O(1)
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
