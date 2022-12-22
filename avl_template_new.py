@@ -533,13 +533,16 @@ class AVLTreeList(object):
 		# create a sorted copy of the list
 		org_arr = merge_sort(tree_arr)
 
-		# create new tree using the sorted list
+		# create new AVL tree
 		new_tree = AVLTreeList()
-		new_tree.root = buildTreeFromList(org_arr, 0, len(org_arr) - 1)
-		new_tree.size = new_tree.root.getSize()
-		new_tree.max = org_arr[len(org_arr) - 1]
-		new_tree.min = org_arr[0]
+		# build a tree from sorted list and set it's root to be new_tree's root
+		new_tree.setRoot(buildTreeFromList(org_arr, 0, len(org_arr) - 1))
 		new_tree.getRoot().setParent(AVLNode(None))
+		new_tree.size = new_tree.root.getSize()
+		#set new_tree's min pointer
+		new_tree.setMin(min_node(new_tree.getRoot()))
+		# set new_tree's max pointer
+		new_tree.setMax(max_node(new_tree.getRoot()))
 		return new_tree
 
 	"""permute the info values of the list - O(n) time complexity
@@ -555,16 +558,19 @@ class AVLTreeList(object):
 		# shuffle the list in place
 		shuffle(tree_arr)
 
-		# create new tree using the shuffled list
+		# create new AVL tree
 		new_tree = AVLTreeList()
+		# build a tree from shuffled list and set it's root to be new_tree's root
 		new_tree.root = buildTreeFromList(tree_arr, 0, len(tree_arr) - 1)
-		new_tree.size = new_tree.root.getSize()
-		new_tree.max = tree_arr[len(tree_arr) - 1]
-		new_tree.min = tree_arr[0]
 		new_tree.getRoot().setParent(AVLNode(None))
+		new_tree.size = new_tree.root.getSize()
+		# set new_tree's min pointer
+		new_tree.setMin(min_node(new_tree.getRoot()))
+		# set new_tree's max pointer
+		new_tree.setMax(max_node(new_tree.getRoot()))
 		return new_tree
 
-	"""concatenates lst to self - O(log(max{n,m})) where n is height(self) and m is height(lst)
+	"""concatenates lst to self - O(log(max{n,m})) where n is self.length() and m is lst.length()
 
 	@type lst: AVLTreeList
 	@param lst: a list to be concatenated after self
@@ -627,7 +633,7 @@ class AVLTreeList(object):
 		self.setMax(lst.getMax())
 		return height_diff
 
-	"""connects lst to self if height of self is bigger than height of lst - O(log(n)) where n is height(self)
+	"""connects lst to self if height of self is bigger than height of lst - O(log(n)) where n is self.length()
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
@@ -655,7 +661,7 @@ class AVLTreeList(object):
 		lst.getRoot().setParent(x)
 		node_self.setParent(x)
 
-	"""connects lst to self if height of self is smaller than height of lst - O(log(m)) where m is height(lst)
+	"""connects lst to self if height of self is smaller than height of lst - O(log(m)) where m is lst.length()
 
 	@type x: AVLNode
 	@type lst: AVLTreeList

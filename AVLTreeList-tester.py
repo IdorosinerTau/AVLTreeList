@@ -1425,7 +1425,7 @@ def tester():
 
             pp = avl1.delete(d)
             if (pp == -1):
-                print("l1")
+                print("l")
         if (p - math.floor(p / 2)) != len(avl1.listToArray()):
             print("no")
 
@@ -1437,85 +1437,34 @@ def tester():
         for i in range(0, math.floor(p / 2)):
             d = random.randint(0, avl2.getRoot().getHeight() - 1)
             if (avl2.delete(d) == -1):
-                print("l2")
+                print("l")
 
         l1 = avl1.listToArray()
         l2 = avl2.listToArray()
         if (avl1.isAvlTree() == False):
-            print("l3")
+            print("l")
         if (avl2.isAvlTree() == False):
-            print("l4")
+            print("l")
 
-        avl1_copy = AVLTreeList()
-        avl1_copy.setRoot(avl1.getRoot())
-        avl1_copy.setMax(avl1.getMax())
-        avl1_copy.setMin(avl1.getMin())
-        avl2_copy = AVLTreeList()
-        avl2_copy.setRoot(avl2.getRoot())
-        avl2_copy.setMax(avl2.getMax())
-        avl2_copy.setMin(avl2.getMin())
         avl1.concat(avl2)
 
-
         if (avl1.isAvlTree() == False):
-            print("l5")
+            print("l")
+        if avl1.listToArray() != []:
+            if avl1.listToArray()[0] != avl1.first():
+                print(list)
+            if avl1.listToArray().pop() != avl1.last():
+                print("l")
+        if avl1.listToArray() != (l1 + l2):
+            print(l1)
+            print(l2)
+            print(avl1.listToArray())
 
-        elif avl1.listToArray() == []:
-            print("empty tree")
-        else:
-            try:
-                if avl1.listToArray()[0] != avl1.first():
-                    print("l6")
-                    print(l1)
-                    lst = avl1_copy.printree(avl1_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(l2)
-                    lst = avl2_copy.printree(avl2_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(avl1.listToArray())
-                    print(avl1.first())
-                    sys.exit("stop1")
-            except IndexError:
-                print("index error")
-                print(l1)
-                lst = avl1_copy.printree(avl1_copy.getRoot())
-                for item in lst:
-                    print(item)
-                print(l2)
-                lst = avl2_copy.printree(avl2_copy.getRoot())
-                for item in lst:
-                    print(item)
-                print(avl1.listToArray())
-                print(avl1.first())
-                sys.exit("stop2")
-            finally:
-                if avl1.listToArray().pop() != avl1.last():
-                    print("l7")
-                    print(l1)
-                    lst = avl1_copy.printree(avl1_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(l2)
-                    lst = avl2_copy.printree(avl2_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(avl1.listToArray())
-                    print(avl1.last())
-                    sys.exit("stop2")
-                if avl1.listToArray() != (l1 + l2):
-                    print("l8")
-                    print(l1)
-                    lst = avl1_copy.printree(avl1_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(l2)
-                    lst = avl2_copy.printree(avl2_copy.getRoot())
-                    for item in lst:
-                        print(item)
-                    print(avl1.listToArray())
-                    sys.exit("stop3")
+        lst1 = avl1.listToArray()
+        lst1.sort()
+        avl3 = avl1.sort()
+        if avl3.listToArray() != lst1:
+            print("not good sort")
 
 
 
