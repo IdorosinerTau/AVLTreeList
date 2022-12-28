@@ -1,13 +1,12 @@
-# username - complete info
-# id1      - complete info
-# name1    - complete info
-# id2      - complete info
-# name2    - complete info
+# username - idorosiner
+# id1      - 209617000
+# name1    - Ido Rosiner
+# id2      - 206627820
+# name2    - Tomer Rudnitzky
 
-from random import randint
+import random
 
 """A class represnting a node in an AVL tree"""
-
 
 class AVLNode(object):
 	"""Constructor, you are allowed to add more fields.
@@ -304,6 +303,8 @@ class AVLTreeList(object):
 	"""
 
 	def retrieve(self, i):
+		if i >= self.length() or i < 0:
+			return None
 		return self.treeSelect(i + 1).getValue()
 
 	"""inserts val at position i in the list - O(log(n)) time complexity
@@ -318,6 +319,10 @@ class AVLTreeList(object):
 	"""
 
 	def insert(self, i, val):
+		# the user is trying to insert an element that's out of range
+		if i > self.length() or i < 0:
+			return -1
+
 		# initializing a node to insert into the tree
 		node_to_insert = AVLNode(val)
 		node_to_insert.setRight(AVLNode(None))
@@ -375,6 +380,14 @@ class AVLTreeList(object):
 	"""
 
 	def delete(self, i):
+		#there are no elements in the tree to delete
+		if self.empty():
+			return -1
+
+		# the user is trying to delete an element that's out of range
+		if i >= self.length() or i < 0:
+			return -1
+
 		# if the current tree has only one node in it, update it to an empty tree
 		if self.length() == 1:
 			self.setRoot(AVLNode(None))
@@ -390,7 +403,7 @@ class AVLTreeList(object):
 		# preparing deletion from the start of the tree representing a list
 		elif i == 0:
 			node_to_del = self.getMin()
-			self.setMin(successor(node_to_del))
+			self.setMin(self.successor(node_to_del))
 
 		# preparing deletion from the center of the tree representing a list
 		else:
@@ -422,6 +435,7 @@ class AVLTreeList(object):
 				parent.setLeft(node_to_del.getLeft())
 			else:
 				parent.setRight(node_to_del.getLeft())
+			node_to_del.getLeft().setParent(parent)
 			return parent
 
 		# deleting node with only right child
@@ -455,7 +469,7 @@ class AVLTreeList(object):
 		# node with two children:
 		else:
 			# get the inorder successor and copy it's value to this node
-			suc_node = successor(node_to_del)
+			suc_node = self.successor(node_to_del)
 			node_to_del.setValue(suc_node.getValue())
 
 			# delete the inorder successor
@@ -530,19 +544,30 @@ class AVLTreeList(object):
 		# get the list that represents the tree
 		tree_arr = self.listToArray()
 
-		# create a sorted copy of the list
-		org_arr = merge_sort(tree_arr)
+		# self is empty
+		if not tree_arr:
+			return AVLTreeList()
+
+		# create list of all None elements of tree_arr
+		none_lst = [None for val in tree_arr if val is None]
+
+		# create list of all the elements that are not None in tree_arr
+		tree_arr = [val for val in tree_arr if val is not None]
+
+		# create a sorted copy of the list where all None elements are at the start
+		org_arr = none_lst + self.merge_sort(tree_arr)
 
 		# create new AVL tree
 		new_tree = AVLTreeList()
 		# build a tree from sorted list and set it's root to be new_tree's root
-		new_tree.setRoot(buildTreeFromList(org_arr, 0, len(org_arr) - 1))
+		new_tree.setRoot(self.buildTreeFromList(org_arr, 0, len(org_arr) - 1))
 		new_tree.getRoot().setParent(AVLNode(None))
-		new_tree.size = new_tree.root.getSize()
+		# set new_tree's size
+		new_tree.setSize(new_tree.length())
 		#set new_tree's min pointer
-		new_tree.setMin(min_node(new_tree.getRoot()))
+		new_tree.setMin(self.min_node(new_tree.getRoot()))
 		# set new_tree's max pointer
-		new_tree.setMax(max_node(new_tree.getRoot()))
+		new_tree.setMax(self.max_node(new_tree.getRoot()))
 		return new_tree
 
 	"""permute the info values of the list - O(n) time complexity
@@ -555,22 +580,27 @@ class AVLTreeList(object):
 		# get the list that represents the tree
 		tree_arr = self.listToArray()
 
+		# self is empty
+		if not tree_arr:
+			return AVLTreeList()
+
 		# shuffle the list in place
-		shuffle(tree_arr)
+		self.shuffle(tree_arr)
 
 		# create new AVL tree
 		new_tree = AVLTreeList()
 		# build a tree from shuffled list and set it's root to be new_tree's root
-		new_tree.root = buildTreeFromList(tree_arr, 0, len(tree_arr) - 1)
+		new_tree.root = self.buildTreeFromList(tree_arr, 0, len(tree_arr) - 1)
 		new_tree.getRoot().setParent(AVLNode(None))
-		new_tree.size = new_tree.root.getSize()
+		# set new_tree's size
+		new_tree.setSize(new_tree.length())
 		# set new_tree's min pointer
-		new_tree.setMin(min_node(new_tree.getRoot()))
+		new_tree.setMin(self.min_node(new_tree.getRoot()))
 		# set new_tree's max pointer
-		new_tree.setMax(max_node(new_tree.getRoot()))
+		new_tree.setMax(self.max_node(new_tree.getRoot()))
 		return new_tree
 
-	"""concatenates lst to self - O(log(max{n,m})) where n is self.length() and m is lst.length()
+	"""concatenates lst to self - O(log(n))
 
 	@type lst: AVLTreeList
 	@param lst: a list to be concatenated after self
@@ -579,19 +609,25 @@ class AVLTreeList(object):
 	"""
 
 	def concat(self, lst):
+		#absolute difference in height between both trees before any changes
 		height_diff = abs(self.getRoot().getHeight() - lst.getRoot().getHeight())
+		new_size = self.length() + lst.length()
 
-		#the other tree is an empty tree
+		#both self and lst are empty
+		if self.empty() and lst.empty():
+			return 0
+
+		#lst is empty
 		if lst.empty():
-			return height_diff
+			return self.getRoot().getHeight()
 
-		#self is an empty tree
+		#self is empty
 		if self.empty():
 			self.setRoot(lst.getRoot())
 			self.setMin(lst.getMin())
 			self.setMax(lst.getMax())
-			self.size = lst.size
-			return height_diff
+			self.setSize(new_size)
+			return lst.getRoot().getHeight()
 
 		#self has only one element
 		if self.length() == 1:
@@ -599,7 +635,7 @@ class AVLTreeList(object):
 			self.setRoot(lst.getRoot())
 			self.setMin(lst.getMin())
 			self.setMax(lst.getMax())
-			self.size = lst.size
+			self.setSize(new_size)
 			return height_diff
 
 		#lst has only one element
@@ -607,7 +643,7 @@ class AVLTreeList(object):
 			self.insert(self.length(), lst.getRoot().getValue())
 			return height_diff
 
-		#delete the max node and use it as a connector to both trees like we learnt in class
+		#delete the max node of self and use it as a connector to both trees like we learnt in class
 		x = self.getMax()
 		self.delete(self.length() - 1)
 
@@ -631,9 +667,10 @@ class AVLTreeList(object):
 			# rebalance tree after connecting
 			self.rebalanceTree(x)
 		self.setMax(lst.getMax())
+		self.setSize(new_size)
 		return height_diff
 
-	"""connects lst to self if height of self is bigger than height of lst - O(log(n)) where n is self.length()
+	"""connects lst to self if height of self is bigger than height of lst - O(log(n))
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
@@ -661,7 +698,7 @@ class AVLTreeList(object):
 		lst.getRoot().setParent(x)
 		node_self.setParent(x)
 
-	"""connects lst to self if height of self is smaller than height of lst - O(log(m)) where m is lst.length()
+	"""connects lst to self if height of self is smaller than height of lst - O(log(n))
 
 	@type x: AVLNode
 	@type lst: AVLTreeList
@@ -750,7 +787,7 @@ class AVLTreeList(object):
 		A.setParent(node.getParent())
 
 		# node is not the root of the tree
-		if node.getParent().isRealNode():
+		if self.getRoot() is not node:
 			if node.getParent().getLeft() == node:
 				A.getParent().setLeft(A)
 			else:
@@ -783,7 +820,7 @@ class AVLTreeList(object):
 		A.setParent(node.getParent())
 
 		# node is not the root of the tree
-		if node.getParent().isRealNode():
+		if self.getRoot() is not node:
 			if node.getParent().getLeft() == node:
 				A.getParent().setLeft(A)
 			else:
@@ -802,7 +839,7 @@ class AVLTreeList(object):
 		node.setBF(node.computeBF())
 		A.setBF(A.computeBF())
 
-	"""rebalances the tree representing the list - O(log(n)) time complexity
+	"""rebalances the tree representing the list - O(log(n))
 
 	@type node: AVLNode
 	@param val: the node to start reblancing from upwards
@@ -846,7 +883,7 @@ class AVLTreeList(object):
 			node = node.getParent()
 		return num_rebalancing
 
-	"""finds and returns the node in index i - 1 of the list - O(log(i)) time complexity
+	"""finds and returns the node in index i - 1 of the list - O(log(i))
 
 	@type i: int
 	@pre: 0 < i <= self.length()
@@ -887,6 +924,32 @@ class AVLTreeList(object):
 		else:
 			return self.treeSelectHelper(node.getRight(), i - r)
 
+	"""finds the right most node in the subtree - O(log(n)) time complexity
+
+	@type node: AVLNode
+	@param node: a node
+	@rtype: AVLNode
+	@returns: the right most node (that is not virtual) in the subtree of node
+	"""
+
+	def max_node(self, node):
+		while node.getRight().isRealNode():
+			node = node.getRight()
+		return node
+
+	"""finds the left most node in the subtree - O(log(n)) time complexity
+
+	@type node: AVLNode
+	@param node: a node
+	@rtype: AVLNode
+	@returns: the left most node (that is not virtual) in the subtree of node
+	"""
+
+	def min_node(self, node):
+		while node.getLeft().isRealNode():
+			node = node.getLeft()
+		return node
+
 	"""finds the predecessor node of x in the tree - O(log(n)) time complexity
 
 	@type x: AVLNode
@@ -898,7 +961,7 @@ class AVLTreeList(object):
 	def predecessor(self, x):
 		# the node has a left subtree and therefore the predecessor of x is the max node in the left subtree
 		if x.getLeft().isRealNode():
-			return max_node(x.getLeft())
+			return self.max_node(x.getLeft())
 
 		# find the lowest ancestor y such that x is in the right subtree of y
 		y = x.getParent()
@@ -906,6 +969,147 @@ class AVLTreeList(object):
 			x = y
 			y = x.getParent()
 		return y
+
+	"""finds the successor node of x in the tree - O(log(n)) time complexity
+
+	@type x: AVLNode
+	@param x: a node
+	@rtype: AVLNode
+	@returns: the successor of x
+	"""
+
+	def successor(self, x):
+		# the node has a right subtree and therefore the successor of x is the min node in the left subtree
+		if x.getRight().isRealNode():
+			return self.min_node(x.getRight())
+
+		# find the lowest ancestor y such that x is in the left subtree of y
+		y = x.getParent()
+		while y.isRealNode() and x == y.getRight():
+			x = y
+			y = x.getParent()
+		return y
+
+	"""builds and AVLTree from a list in-order - O(n) time complexity
+
+	@type lst: list
+	@type left: int
+	@type right: int
+	@param lst: the list containing the values from which the AVLTree will be built
+	@param left: a pointer
+	@param right: a pointer
+	@rtype: AVLNode
+	@returns: the root of the AVLTree
+	"""
+
+	def buildTreeFromList(self, lst, left, right):
+		# if right < left then we return a virtual node
+		if right < left:
+			return AVLNode(None)
+
+		# create a node from the center of the list so that the tree will be most balanced
+		mid = (left + right) // 2
+		node = AVLNode(lst[mid])
+
+		# build left subtree of node
+		node.setLeft(self.buildTreeFromList(lst, left, mid - 1))
+
+		# build right subtree of node
+		node.setRight(self.buildTreeFromList(lst, mid + 1, right))
+
+		# update parameters of node
+		node.setHeight(node.computeHeight())
+		node.setSize(node.computeSize())
+		node.setBF(node.computeBF())
+
+		# setting node as parent for left and right children
+		node.getRight().setParent(node)
+		node.getLeft().setParent(node)
+		return node
+
+	"""merges two lists into a sorted list - O(n + m) time complexity
+
+	@type lst1: list
+	@type lst2: list
+	@param lst1: a list
+	@param lst2: a list
+	@rtype: list
+	@returns: a sorted list
+	"""
+
+	def merge(self, lst1, lst2):
+		# if the first list is empty then nothing needs to be merged. return second list
+		if len(lst1) == 0:
+			return lst2
+
+		# if the second list is empty then nothing needs to be merged. return first list
+		if len(lst2) == 0:
+			return lst1
+
+		result = []
+		index1 = index2 = 0
+
+		# go through both lists until all the elements make it into the result list in sorted order
+		while len(result) < len(lst1) + len(lst2):
+			# the current element in the first list is smaller/equal to the current element in the second list
+			if lst1[index1] <= lst2[index2]:
+				result.append(lst1[index1])
+				index1 += 1
+
+			# the current element in the second list is larger than the current element in the first list
+			else:
+				result.append(lst2[index2])
+				index2 += 1
+
+			# if we have reached the end of one list
+
+			# add the remaining elements from the first list
+			if index2 == len(lst2):
+				result += lst1[index1:]
+				break
+
+			# add the remaining elements from the second list
+			if index1 == len(lst1):
+				result += lst2[index2:]
+				break
+
+		return result
+
+	"""sorts a list - O(nlog(n)) time complexity
+
+	@type lst: list
+	@param lst: a list
+	@rtype: list
+	@returns: a sorted copy of lst
+	"""
+
+	def merge_sort(self ,lst):
+		# if the input list contains fewer than two elements then nothing needs to be sorted
+		if len(lst) < 2:
+			return lst
+
+		mid = len(lst) // 2
+
+		# sort the list by recursively splitting the input into two equal halves, sorting each half, and merging them together
+		return self.merge(self.merge_sort(lst[:mid]), self.merge_sort(lst[mid:]))
+
+	"""shuffles a list in place - O(n) time complexity
+
+	@type lst: list
+	@param lst: a list
+	"""
+
+	def shuffle(self, lst):
+		for index in range(len(lst) - 1, 0, -1):
+			# choose a random element in the list to swap places with the current element
+			other = random.randint(0, len(lst) - 1)
+			if other == index:
+				continue
+			lst[index], lst[other] = lst[other], lst[index]
+
+
+
+
 
 	##########################################
 	## This file contains functions for the representation of binary trees.
@@ -993,176 +1197,6 @@ class AVLTreeList(object):
 
 #####################################################################
 
-"""builds and AVLTree from a list in-order - O(n) time complexity
 
-@type lst: list
-@type left: int
-@type right: int
-@param lst: the list containing the values from which the AVLTree will be built
-@param left: a pointer
-@param right: a pointer
-@rtype: AVLNode
-@returns: the root of the AVLTree
-"""
-
-def buildTreeFromList(lst, left, right):
-	# if right < left then we return a virtual node
-	if right < left:
-		return AVLNode(None)
-
-	# create a node from the center of the list so that the tree will be most balanced
-	mid = (left + right) // 2
-	node = AVLNode(lst[mid])
-
-	# build left subtree of node
-	node.setLeft(buildTreeFromList(lst, left, mid - 1))
-
-	# build right subtree of node
-	node.setRight(buildTreeFromList(lst, mid + 1, right))
-
-	# update parameters of node
-	node.setHeight(node.computeHeight())
-	node.setSize(node.computeSize())
-	node.setBF(node.computeBF())
-
-	# setting node as parent for left and right children
-	if node.getRight().isRealNode():
-		node.getRight().setParent(node)
-	if node.getLeft().isRealNode():
-		node.getLeft().setParent(node)
-	return node
-
-
-"""finds the right most node in the subtree - O(log(n)) time complexity
-
-@type node: AVLNode
-@param node: a node
-@rtype: AVLNode
-@returns: the right most node (that is not virtual) in the subtree of node
-"""
-
-
-def max_node(node):
-	while node.getRight().isRealNode():
-		node = node.getRight()
-	return node
-
-
-"""finds the left most node in the subtree - O(log(n)) time complexity
-
-@type node: AVLNode
-@param node: a node
-@rtype: AVLNode
-@returns: the left most node (that is not virtual) in the subtree of node
-"""
-
-
-def min_node(node):
-	while node.getLeft().isRealNode():
-		node = node.getLeft()
-	return node
-
-
-"""finds the successor node of x in the tree - O(log(n)) time complexity
-
-@type x: AVLNode
-@param x: a node
-@rtype: AVLNode
-@returns: the successor of x
-"""
-
-def successor(x):
-	# the node has a right subtree and therefore the successor of x is the min node in the left subtree
-	if x.getRight().isRealNode():
-		return min_node(x.getRight())
-
-	# find the lowest ancestor y such that x is in the left subtree of y
-	y = x.getParent()
-	while y.isRealNode() and x == y.getRight():
-		x = y
-		y = x.getParent()
-	return y
-
-
-"""merges two lists into a sorted list - O(n + m) time complexity
-
-@type lst1: list
-@type lst2: list
-@param lst1: a list
-@param lst2: a list
-@rtype: list
-@returns: a sorted list
-"""
-
-def merge(lst1, lst2):
-	# if the first list is empty then nothing needs to be merged. return second list
-	if len(lst1) == 0:
-		return lst2
-
-	# if the second list is empty then nothing needs to be merged. return first list
-	if len(lst2) == 0:
-		return lst1
-
-	result = []
-	index1 = index2 = 0
-
-	# go through both lists until all the elements make it into the result list in sorted order
-	while len(result) < len(lst1) + len(lst2):
-		# the current element in the first list is smaller/equal to the current element in the second list
-		if lst1[index1] <= lst2[index2]:
-			result.append(lst1[index1])
-			index1 += 1
-
-		# the current element in the second list is larger than the current element in the first list
-		else:
-			result.append(lst2[index2])
-			index2 += 1
-
-		# if we have reached the end of one list
-
-		# add the remaining elements from the first list
-		if index2 == len(lst2):
-			result += lst1[index1:]
-			break
-
-		# add the remaining elements from the second list
-		if index1 == len(lst1):
-			result += lst2[index2:]
-			break
-
-	return result
-
-
-"""sorts a list - O(nlog(n)) time complexity
-
-@type lst: list
-@param lst: a list
-@rtype: list
-@returns: a sorted copy of lst
-"""
-
-def merge_sort(lst):
-	# if the input list contains fewer than two elements then nothing needs to be sorted
-	if len(lst) < 2:
-		return lst
-
-	mid = len(lst) // 2
-
-	# sort the list by recursively splitting the input into two equal halves, sorting each half, and merging them together
-	return merge(merge_sort(lst[:mid]), merge_sort(lst[mid:]))
-
-
-"""shuffles a list in place - O(n) time complexity
-
-@type lst: list
-@param lst: a list
-"""
-def shuffle(lst):
-	for index in range(len(lst) - 1, 0, -1):
-		# choose a random element in the list to swap places with the current element
-		other = random.randint(0, len(lst) - 1)
-		if other == index:
-			continue
-		lst[index], lst[other] = lst[other], lst[index]
 
 

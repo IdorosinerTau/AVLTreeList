@@ -59,10 +59,10 @@ class testAVLList(unittest.TestCase):
         self.assertFalse(self.twentyTree.empty())
 
     def test_retrieve_basic(self):
-        #self.assertIsNone(self.emptyList.retrieve(0))
-        #self.assertIsNone(self.emptyList.retrieve(59))
-        #self.assertIsNone(self.twentyTree.retrieve(30))
-        #self.assertIsNone(self.twentyTree.retrieve(-1))
+        self.assertIsNone(self.emptyList.retrieve(0))
+        self.assertIsNone(self.emptyList.retrieve(59))
+        self.assertIsNone(self.twentyTree.retrieve(30))
+        self.assertIsNone(self.twentyTree.retrieve(-1))
         for i in range(20):
             self.assertEqual(self.twentylist[i], self.twentyTree.retrieve(i))
         T = AVLTreeList()
@@ -1095,8 +1095,8 @@ class testAVLList(unittest.TestCase):
         LR1.append(i)
         LR2.append(i+10)
 
-    # def test_compare_treelist_and_list(self):
-        # self.assertEqual (self.TR1.listToArray(),self.LR1)
+    #def test_compare_treelist_and_list(self):
+     #   self.assertEqual(TR1.listToArray(),LR1)
 
     TR1.concat(TR2)
     LR3 = LR1 + LR2
@@ -1165,7 +1165,7 @@ class testAVLList(unittest.TestCase):
         T1.concat(T2)
         L3 = L1+L2
         self.compare_with_list_by_in_order(T1, L3)
-        #self.compare_with_list_by_retrieve(T1, L3)
+        self.compare_with_list_by_retrieve(T1, L3)
         self.check_first(T1, L3)
         self.check_last(T1, L3)
         self.assertEqual(T1.listToArray(), L3)
@@ -1231,8 +1231,8 @@ class testAVLList(unittest.TestCase):
             T2.append(i)
 
         # the height of an empty tree is -1.
-        self.assertEqual(T1.concat(T3), 2)
-        self.assertEqual(T4.concat(T2), 2)
+        self.assertEqual(T1.concat(T3), 1)
+        self.assertEqual(T4.concat(T2), 1)
 
     def test_assert_height_difference_non_empty_lists(self):
         T1 = AVLTreeList()
@@ -1414,7 +1414,7 @@ class testAVLList(unittest.TestCase):
 
 
 def tester():
-    for i in range(100):
+    for i in range(1):
         avl1 = AVLTreeList()
         p = random.randint(0, 100)
         for i in range(0, p):
@@ -1448,6 +1448,7 @@ def tester():
 
         avl1.concat(avl2)
 
+
         if (avl1.isAvlTree() == False):
             print("l")
         if avl1.listToArray() != []:
@@ -1466,8 +1467,30 @@ def tester():
         if avl3.listToArray() != lst1:
             print("not good sort")
 
+        avl3.permutation()
 
+        lst = []
+        avl1 = AVLTreeList()
+        for i in range(7):
+            r = random.randint(0, 20)
+            lst.append(r)
+            avl1.insert(i, r)
 
+        avl2 = avl1.sort()
+        if lst != avl2.listToArray():
+            print("sort not good")
+        avl2 = avl1.permutation()
+        for i in range(10):
+            lst1_arr = avl2.listToArray()
+            lst = avl2.printree(avl2.getRoot())
+            for item in lst:
+                print(item)
+            avl2 = avl2.permutation()
+            lst2_arr = avl2.listToArray()
+            for val in lst1_arr:
+                if val not in lst2_arr:
+                    print("perm not good")
+    print("done!")
 
 
     # def test_successor_and_predeccessor(self):
