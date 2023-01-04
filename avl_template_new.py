@@ -24,14 +24,6 @@ class AVLNode(object):
 		self.size = 0  # number of nodes in the left and right subtrees + 1
 		self.bf = 0  # balance factor of the node
 
-	def recc(self):
-		if (self.isRealNode() == True):
-			if abs(self.getBF()) > 2:
-				return False
-			self.getLeft().recc()
-			self.getRight().recc()
-		return True
-
 	"""returns the left child - O(1) time complexity
 	
 	@rtype: AVLNode
@@ -213,11 +205,6 @@ class AVLTreeList(object):
 		self.root = AVLNode(None)
 		self.min = None  # left most node in the tree/min in list
 		self.max = None  # right most node in the tree/max in list
-
-	def isAvlTree(self):
-		if self.empty():
-			return True
-		return self.getRoot().recc()
 
 	"""returns the root of the tree representing the list - O(1) time complexity
 
@@ -1106,97 +1093,3 @@ class AVLTreeList(object):
 			if other == index:
 				continue
 			lst[index], lst[other] = lst[other], lst[index]
-
-
-
-
-
-	##########################################
-	## This file contains functions for the representation of binary trees.
-	## used in class Binary_search_tree's __repr__
-	## Written by a former student in the course - thanks to Amitai Cohen
-
-	def printree(self, t, bykey=True):
-		"""Print a textual representation of t
-		bykey=True: show keys instead of values"""
-		# for row in trepr(t, bykey):
-		#        print(row)
-		return self.trepr(t, bykey)
-
-	def trepr(self, t, bykey=False):
-		"""Return a list of textual representations of the levels in t
-		bykey=True: show keys instead of values"""
-		if t == None:
-			return ["#"]
-		if t.getParent() is not None:
-			st = str(t.value) + " " + str(t.size) + " " + str(t.height) + " " + str(t.bf) + " " + str(
-				t.parent.value)
-		else:
-			st = str(t.value) + " " + str(t.size) + " " + str(t.height) + " " + str(t.bf) + " " + str(t.parent)
-		thistr = st if bykey else str(t.val)
-
-		return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
-
-	def conc(self, left, root, right):
-		"""Return a concatenation of textual represantations of
-		a root node, its left node, and its right node
-		root is a string, and left and right are lists of strings"""
-
-		lwid = len(left[-1])
-		rwid = len(right[-1])
-		rootwid = len(root)
-
-		result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
-
-		ls = self.leftspace(left[0])
-		rs = self.rightspace(right[0])
-		result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
-
-		for i in range(max(len(left), len(right))):
-			row = ""
-			if i < len(left):
-				row += left[i]
-			else:
-				row += lwid * " "
-
-			row += (rootwid + 2) * " "
-
-			if i < len(right):
-				row += right[i]
-			else:
-				row += rwid * " "
-
-			result.append(row)
-
-		return result
-
-	def leftspace(self, row):
-		"""helper for conc"""
-		# row is the first row of a left node
-		# returns the index of where the second whitespace starts
-		i = len(row) - 1
-		while row[i] == " ":
-			i -= 1
-		return i + 1
-
-	def rightspace(self, row):
-		"""helper for conc"""
-		# row is the first row of a right node
-		# returns the index of where the first whitespace ends
-		i = 0
-		while row[i] == " ":
-			i += 1
-		return i
-
-	def append(self, val):
-		return self.insert(self.length(), val)
-
-	def getTreeHeight(self):
-		return self.getRoot().getHeight()
-
-
-#####################################################################
-
-
-
-
