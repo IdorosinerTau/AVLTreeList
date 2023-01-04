@@ -18,6 +18,94 @@ OF THESE FIELDS AT YOUR IMPLEMENTATION.
 DIFFERENTLY THEN YOU WILL NEED TO FIT THOSE TESTS OR COMMENT THEM.
 """
 
+"""
+
+	##########################################
+	## This file contains functions for the representation of binary trees.
+	## used in class Binary_search_tree's __repr__
+	## Written by a former student in the course - thanks to Amitai Cohen
+
+	def printree(self, t, bykey=True):
+		#Print a textual representation of t
+		#bykey=True: show keys instead of values
+		# for row in trepr(t, bykey):
+		#        print(row)
+		return self.trepr(t, bykey)
+
+	def trepr(self, t, bykey=False):
+		#Return a list of textual representations of the levels in t
+		#bykey=True: show keys instead of values
+		if t == None:
+			return ["#"]
+		if t.getParent() is not None:
+			st = str(t.value) + " " + str(t.size) + " " + str(t.height) + " " + str(t.bf) + " " + str(
+				t.parent.value)
+		else:
+			st = str(t.value) + " " + str(t.size) + " " + str(t.height) + " " + str(t.bf) + " " + str(t.parent)
+		thistr = st if bykey else str(t.val)
+
+		return self.conc(self.trepr(t.left, bykey), thistr, self.trepr(t.right, bykey))
+
+	def conc(self, left, root, right):
+		#Return a concatenation of textual represantations of
+		#a root node, its left node, and its right node
+		#root is a string, and left and right are lists of strings
+
+		lwid = len(left[-1])
+		rwid = len(right[-1])
+		rootwid = len(root)
+
+		result = [(lwid + 1) * " " + root + (rwid + 1) * " "]
+
+		ls = self.leftspace(left[0])
+		rs = self.rightspace(right[0])
+		result.append(ls * " " + (lwid - ls) * "_" + "/" + rootwid * " " + "\\" + rs * "_" + (rwid - rs) * " ")
+
+		for i in range(max(len(left), len(right))):
+			row = ""
+			if i < len(left):
+				row += left[i]
+			else:
+				row += lwid * " "
+
+			row += (rootwid + 2) * " "
+
+			if i < len(right):
+				row += right[i]
+			else:
+				row += rwid * " "
+
+			result.append(row)
+
+		return result
+
+	def leftspace(self, row):
+		#helper for conc
+		# row is the first row of a left node
+		# returns the index of where the second whitespace starts
+		i = len(row) - 1
+		while row[i] == " ":
+			i -= 1
+		return i + 1
+
+	def rightspace(self, row):
+		#helper for conc
+		# row is the first row of a right node
+		# returns the index of where the first whitespace ends
+		i = 0
+		while row[i] == " ":
+			i += 1
+		return i
+
+	def append(self, val):
+		return self.insert(self.length(), val)
+
+	def getTreeHeight(self):
+		return self.getRoot().getHeight()
+
+
+#####################################################################"""
+
 
 class testAVLList(unittest.TestCase):
 
@@ -1412,7 +1500,21 @@ class testAVLList(unittest.TestCase):
         self.assertEqual(T.insert(0, 1), 0)
         self.assertEqual(T.insert(1, 2), 2)
 
-
+"""
+	def recc(self):
+		if (self.isRealNode() == True):
+			if abs(self.getBF()) > 2:
+				return False
+			self.getLeft().recc()
+			self.getRight().recc()
+		return True
+	
+	
+	def isAvlTree(self):
+		if self.empty():
+			return True
+		return self.getRoot().recc()
+		"""
 def tester():
     for i in range(1):
         avl1 = AVLTreeList()
@@ -1493,6 +1595,28 @@ def tester():
     print("done!")
 
 
+def test2():
+    k=0
+    for i in range(11):
+        t = AVLTreeList()
+        t.insert(0, "start")
+        for j in range(2, 4000):
+            if t.length() != t.getRoot().getSize():
+                print("not good")
+                break
+            index = random.randint(0, j-2)
+            t.insert(index, str(j))
+        if t.length() != t.getRoot().getSize():
+            print("not good")
+            break
+
+    t = AVLTreeList()
+    t.insert(0, "start")
+    for j in range(2,2002):
+        index = random.randint(0, j-2)
+        t.insert(index, str(j))
+    print(t.search("start"))
+
     # def test_successor_and_predeccessor(self):
     #     T = AVLTreeList()
     #     T.append(0)
@@ -1505,5 +1629,6 @@ def tester():
     #         T.getRoot().getRight()).getValue(), 0)
 
 if __name__ == '__main__':
-    tester()
-    unittest.main()
+    #tester()
+    #unittest.main()
+    test2()
